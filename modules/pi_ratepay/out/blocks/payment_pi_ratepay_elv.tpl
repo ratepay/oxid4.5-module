@@ -1,4 +1,5 @@
 [{if $sPaymentID == "pi_ratepay_elv"}]
+[{oxscript include="js/libs/ratepay.js"}]
 [{assign var="dynvalue" value=$oView->getDynValue()}]
 <dl>
     <dt>
@@ -60,7 +61,7 @@
 				</li>
 			[{/if}]
         </ul>
-        <table style="border: 1px solid #929292">
+        <table style="border: 1px solid #BDBDBD; padding-left: 4px;">
             <tr>
                 <td colspan="2">
                     [{oxmultilang ident="PI_RATEPAY_ELV_VIEW_RATEPAY_ADDRESS"}]
@@ -86,9 +87,9 @@
             </li>
             <li>
                 <label>[{oxmultilang ident="PI_RATEPAY_ELV_VIEW_BANK_ACCOUNT_NUMBER"}]:</label>
-                <input name='pi_ratepay_elv_bank_account_number' maxlength='255' size='37' type='text' value='[{$piDbBankaccountnumber}]'/>
+                <input name='pi_ratepay_elv_bank_[{if $piDbBankiban}]iban[{else}]account_number[{/if}]' maxlength='50' size='37' type='text' value='[{if $piDbBankiban}][{$piDbBankiban}][{else}][{$piDbBankaccountnumber}][{/if}]' onkeyup="rpElvSwitch(this);" onchange="rpElvSwitch(this);" />
             </li>
-            <li>
+            <li id="PI_RATEPAY_ELV_VIEW_BANK_CODE" style="display: [{if $piDbBankiban}]none[{else}]inline-block[{/if}]">
                 <label>[{oxmultilang ident="PI_RATEPAY_ELV_VIEW_BANK_CODE"}]:</label>
                 <input name='pi_ratepay_elv_bank_code' maxlength='255' size='37' type='text' value='[{$piDbBankcode}]'/>
             </li>

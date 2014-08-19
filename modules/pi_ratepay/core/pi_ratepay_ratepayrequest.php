@@ -390,9 +390,17 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
 
         $bankAccount = $customer->addChild('bank-account');
         $bankAccount->addCDataChild('owner', $bankdata['owner']);
-        $bankAccount->addChild('bank-account-number', $bankdata['bankAccountNumber']);
-        $bankAccount->addChild('bank-code', $bankdata['bankCode']);
+        if (!empty($bankdata['bankAccountNumber'])) {
+            $bankAccount->addChild('bank-account-number', $bankdata['bankAccountNumber']);
+            $bankAccount->addChild('bank-code', $bankdata['bankCode']);
+        }
         $bankAccount->addCDataChild('bank-name', $bankdata['bankName']);
+        if (!empty($bankdata['bankIban'])) {
+            $bankAccount->addChild('iban', $bankdata['bankIban']);
+            if (!empty($bankdata['bankBic'])) {
+                $bankAccount->addChild('bic-swift', $bankdata['bankBic']);
+            }
+        }
     }
 
     /**

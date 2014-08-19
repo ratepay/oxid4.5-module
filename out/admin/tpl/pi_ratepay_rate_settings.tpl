@@ -108,7 +108,7 @@
                                             [{/if}]
                                         </td>
                                     </tr>
-                                    <tr>
+                                    <!--<tr>
                                         <td class="edittext">
                                             [{ oxmultilang ident="PI_RATEPAY_SAVEBANKDATA" }]:&nbsp;
                                         </td>
@@ -119,8 +119,8 @@
                                             <input type="checkbox" name="savebankdata">
                                             [{/if}]
                                         </td>
-                                    </tr>
-                                    <tr>
+                                    </tr>-->
+                                    <!--<tr>
                                         <td class="edittext">
                                             [{ oxmultilang ident="PI_RATEPAY_ACTIVATE_ELV" }]:&nbsp;
                                         </td>
@@ -131,7 +131,7 @@
                                             <input type="checkbox" name="activateelv">
                                             [{/if}]
                                         </td>
-                                    </tr>
+                                    </tr>-->
                                     <tr>
                                         <td class="edittext">
                                             [{ oxmultilang ident="PI_RATEPAY_RATE_SETTINGS_RATEPAY" }]:&nbsp;

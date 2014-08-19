@@ -107,7 +107,7 @@ class pi_ratepay_order extends pi_ratepay_order_parent
             $oBasket = $this->getSession()->getBasket();
             if ($oBasket->getProductsCount()) {
                 if (!$this->_ratepayRequest()) {
-                    if (!$this->getSession()->getVar($this->_paymentId . '_error_id') == $paymentMethodIds[$this->_paymentId]['connection_timeout']) {
+                    if (!$this->getSession()->getVar($this->_paymentId . '_error_id') == $paymentMethodIds[$this->_paymentId]['connection_timeout'] && !$this->_isSandbox($this->_paymentId)) {
                         $this->getSession()->setVar($this->_paymentId . '_error_id', $paymentMethodIds[$this->_paymentId]['denied']);
                         $this->getSession()->setVar('pi_ratepay_denied', 'denied');
                     }
@@ -336,6 +336,13 @@ class pi_ratepay_order extends pi_ratepay_order_parent
     {
         $requestDataProvider = oxNew('pi_ratepay_requestdatafrontend', $paymentType, $basket);
         return oxNew('pi_ratepay_ratepayrequest', $paymentType, $requestDataProvider);
+    }
+
+    protected function _isSandbox($method)
+    {
+        $settings = oxNew('pi_ratepay_Settings');
+        $settings->loadByType(strtolower($method));
+        return ($settings->pi_ratepay_settings__sandbox->rawValue);
     }
 
 }

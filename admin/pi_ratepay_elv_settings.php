@@ -60,7 +60,7 @@ class pi_ratepay_elv_settings extends pi_ratepay_admin_SettingsAbstract
     {
         $sandbox = $this->_isParameterCheckedOn(oxConfig::getParameter('sandbox'));
         $logging = $this->_isParameterCheckedOn(oxConfig::getParameter('logging'));
-        $saveBankData = $this->_isParameterCheckedOn(oxConfig::getParameter('savebankdata'));
+        $saveBankData = 0; //$this->_isParameterCheckedOn(oxConfig::getParameter('savebankdata'));
 
         $settings = oxNew('pi_ratepay_Settings');
         $settings->load($this->getEditObjectId());

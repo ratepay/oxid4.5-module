@@ -19,7 +19,7 @@ class pi_ratepay_util_utilities
      */
     public static $_RATEPAY_PAYMENT_METHOD = array('pi_ratepay_rechnung', 'pi_ratepay_rate', 'pi_ratepay_elv');
 
-    const PI_MODULE_VERSION = '2.5.1';
+    const PI_MODULE_VERSION = '2.5.2';
 
     public static function getPaymentMethod($paymentType)
     {

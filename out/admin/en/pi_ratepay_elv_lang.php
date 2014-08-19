@@ -67,5 +67,5 @@ $aLang = array(
     'PI_RATEPAY_ELV_SETTINGS_POLICY'         => 'Merchant-Policy URL',
     'PI_RATEPAY_ELV_SETTINGS_WIDER'          => 'Widerrufsrecht URL',
     'PI_RATEPAY_ELV_LOGGING'                 => 'Logging',
-    'PI_RATEPAY_ELV_ELV'                     => 'RatePAY Lastschrift'
+    'PI_RATEPAY_ELV_ELV'                     => 'RatePAY SEPA Lastschrift'
 );

@@ -60,18 +60,6 @@
             </li>
             [{/if}]
         </ul>
-        <div style="margin: 15px 0;">
-            <input type="checkbox" name="pi_ratepay_rechnung_privacy" value="1" style="float: left;" />
-            <p>
-                [{oxmultilang ident="PI_RATEPAY_VIEW_PRIVACY_AGREEMENT_TEXT_1"}]
-                <a href='[{$pi_ratepay_rechnung_ratepayurl}]' target='_blank' style="text-decoration:underline;">[{oxmultilang ident="PI_RATEPAY_VIEW_PRIVACY_AGREEMENT_PRIVACYPOLICY"}]</a>
-                [{if $policyurl != '' }]
-                [{oxmultilang ident="PI_RATEPAY_VIEW_PRIVACY_AGREEMENT_TEXT_2"}]
-                <a href='[{$policyurl}]' target='_blank' style="text-decoration:underline;">[{oxmultilang ident="PI_RATEPAY_VIEW_PRIVACY_AGREEMENT_OWNERPOLICY"}]</a>
-                [{/if}]
-                [{oxmultilang ident="PI_RATEPAY_VIEW_PRIVACY_AGREEMENT_TEXT_3"}]
-            </p>
-        </div>
     </dd>
 </dl>
 
