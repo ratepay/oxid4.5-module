@@ -33,4 +33,4 @@ INSERT INTO `pi_ratepay_settings` (`country`, `url`, `sandbox`, `logging`, `type
 INSERT INTO `pi_ratepay_settings` (`country`, `url`, `sandbox`, `logging`, `type`, `duedate`) VALUES ('CH', 'http://www.ratepay.com/zusaetzliche-geschaeftsbedingungen-und-datenschutzhinweis-ch', 1, 1, 'elv', 14);
 INSERT INTO `pi_ratepay_settings` (`country`, `url`, `sandbox`, `logging`, `type`, `duedate`) VALUES ('CH', 'http://www.ratepay.com/zusaetzliche-geschaeftsbedingungen-und-datenschutzhinweis-ch', 1, 1, 'installment', 14);
 
-UPDATE `oxpayments` SET `OXACTIVE` = 1, `OXFROMAMOUNT` = 0, `OXFROMAMOUNT` = 999999999, OXCHECKED = 1 WHERE `oxpayments`.`OXID` IN ('pi_ratepay_rechnung', 'pi_ratepay_rate', 'pi_ratepay_elv');
+UPDATE `oxpayments` SET `OXACTIVE` = 1, `OXFROMAMOUNT` = 0, `OXTOAMOUNT` = 999999999, OXCHECKED = 1 WHERE `oxpayments`.`OXID` IN ('pi_ratepay_rechnung', 'pi_ratepay_rate', 'pi_ratepay_elv');

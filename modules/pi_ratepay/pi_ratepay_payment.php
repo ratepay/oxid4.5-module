@@ -661,10 +661,6 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
      */
     private function _checkRatePAYPaymentMethod($paymentMethod)
     {
-        $act = $this->_checkActivation($paymentMethod);
-        $lim = $this->_checkLimit($paymentMethod);
-        $ala = $this->_checkALA($paymentMethod);
-        $b2b = $this->_checkB2B($paymentMethod);
         return $this->_checkActivation($paymentMethod) && $this->_checkLimit($paymentMethod) && $this->_checkALA($paymentMethod) && $this->_checkB2B($paymentMethod);
     }
 
