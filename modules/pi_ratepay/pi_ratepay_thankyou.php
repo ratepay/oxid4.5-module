@@ -91,7 +91,7 @@ class pi_ratepay_thankyou extends pi_ratepay_thankyou_parent
     protected function _getRatepayRequest()
     {
         $requestDataProvider = oxNew('pi_ratepay_requestdatafrontend', $this->_ratepayPaymentType, $this->getBasket());
-        $ratepayRequest = oxNew('pi_ratepay_ratepayrequest', $this->_ratepayPaymentType, $requestDataProvider);
+        $ratepayRequest = oxNew('pi_ratepay_ratepayrequest', $this->_ratepayPaymentType, $requestDataProvider, null, array('country' => pi_ratepay_util_utilities::getCountry()));
 
         return $ratepayRequest;
     }

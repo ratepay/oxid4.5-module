@@ -51,4 +51,21 @@ abstract class pi_ratepay_admin_SettingsAbstract extends oxAdminView
         return $checked;
     }
 
+    /**
+     * Check if checkbox has been set to on for given parameter.
+     *
+     * @param string $parameter
+     * @return int 0 for false and 1 for true
+     */
+    protected function _isParameterCheckedYes($parameter)
+    {
+        $checked = 0;
+
+        if ($parameter != null && $parameter == 'yes') {
+            $checked = 1;
+        }
+
+        return $checked;
+    }
+
 }

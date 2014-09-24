@@ -335,7 +335,7 @@ class pi_ratepay_order extends pi_ratepay_order_parent
     protected function _getRatepayRequest($paymentType, $basket)
     {
         $requestDataProvider = oxNew('pi_ratepay_requestdatafrontend', $paymentType, $basket);
-        return oxNew('pi_ratepay_ratepayrequest', $paymentType, $requestDataProvider);
+        return oxNew('pi_ratepay_ratepayrequest', $paymentType, $requestDataProvider, null, array('country' => pi_ratepay_util_utilities::getCountry()));
     }
 
     protected function _isSandbox($method)

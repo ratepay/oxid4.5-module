@@ -42,6 +42,12 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
     private $_selectedPaymentMethod;
 
     /**
+     * Stores which payment method was selected by the user
+     * @var string
+     */
+    private $_country;
+
+    /**
      * Validation Errors
      * @var array
      */
@@ -66,6 +72,24 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
     }
 
     /**
+     * Set the current country set by customer.
+     */
+    public function _setCountry()
+    {
+        $this->_country = oxDb::getDb()->getOne("SELECT OXISOALPHA2 FROM oxcountry WHERE OXID = '" . $this->getUser()->oxuser__oxcountryid->value . "'");
+    }
+
+    /**
+     * Get the current country.
+     *
+     * @return string
+     */
+    public function _getCountry()
+    {
+        return $this->_country;
+    }
+
+    /**
      * Check if RatePAY payment methodes are set in the $paymentList.
      * Checks if RatePAY payment requirements are meet,
      * if not unsets the RatePAY payment type from $paymentList.
@@ -75,11 +99,13 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
      */
     private function _modifyPaymentList($paymentList)
     {
-        $ratePayAllowed = $this->_checkRatePAY();
+        $this->_setCountry();
+
+        $rpPaymentAllowed = $this->_checkRatePAY();
 
         foreach (pi_ratepay_util_utilities::$_RATEPAY_PAYMENT_METHOD as $paymentMethod) {
             if (array_key_exists($paymentMethod, $paymentList)) {
-                if (!$ratePayAllowed) {
+                if (!$rpPaymentAllowed || !$this->_checkRatePAYPaymentMethod($paymentMethod)) {
                     unset($paymentList[$paymentMethod]);
                 }
             }
@@ -100,9 +126,7 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
         foreach (pi_ratepay_util_utilities::$_RATEPAY_PAYMENT_METHOD as $paymentMethod) {
 
             if ($this->_firstTime) {
-                $settings->loadByType(
-                    pi_ratepay_util_utilities::getPaymentMethod($paymentMethod)
-                );
+                $settings->loadByType(pi_ratepay_util_utilities::getPaymentMethod($paymentMethod));
 
                 $customer = $this->getUser();
 
@@ -130,12 +154,8 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
                     }
                 }
 
-                $paymentMinimumAmount = oxDb::getDb()->getOne(
-                    "SELECT OXFROMAMOUNT FROM `oxpayments` WHERE `OXID` = '"
-                    . $paymentMethod . "'");
-                $paymentMaximumAmount = oxDb::getDb()->getOne(
-                    "SELECT OXTOAMOUNT FROM `oxpayments` WHERE `OXID` = '"
-                    . $paymentMethod . "'");
+                $paymentMinimumAmount = $settings->pi_ratepay_settings__limit_min->rawValue;
+                $paymentMaximumAmount = $settings->pi_ratepay_settings__limit_max->rawValue;
 
                 $this->addTplParam($paymentMethod
                     . '_minimumAmount', $paymentMinimumAmount);
@@ -631,7 +651,69 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
      */
     private function _checkRatePAY()
     {
-        return $this->_checkCurrency() && $this->_checkCountry() && !$this->_checkDenied() && $this->_checkAge() && $this->_checkAddress();
+        return $this->_checkCurrency() && $this->_checkCountry() && !$this->_checkDenied() && $this->_checkAge();
+    }
+
+    /**
+     * Checks if RatePAY constraints are met.
+     *
+     * @return boolean
+     */
+    private function _checkRatePAYPaymentMethod($paymentMethod)
+    {
+        $act = $this->_checkActivation($paymentMethod);
+        $lim = $this->_checkLimit($paymentMethod);
+        $ala = $this->_checkALA($paymentMethod);
+        $b2b = $this->_checkB2B($paymentMethod);
+        return $this->_checkActivation($paymentMethod) && $this->_checkLimit($paymentMethod) && $this->_checkALA($paymentMethod) && $this->_checkB2B($paymentMethod);
+    }
+
+    /**
+     * Checks if the limits are observed.
+     *
+     * @return boolean
+     */
+    private function _checkLimit($paymentMethod) {
+        $settings = $this->_getRatePaySettings($paymentMethod, strtolower($this->_getCountry()));
+        $limitMin = (int) $settings->pi_ratepay_settings__limit_min->rawValue;
+        $limitMax = (int) $settings->pi_ratepay_settings__limit_max->rawValue;
+        $basketAmount = $this->getSession()->getBasket()->getPrice()->getNettoPrice();
+
+        return ($basketAmount >= $limitMin && $limitMin <= $limitMax);
+    }
+
+    /**
+     * Checks if b2b is used and allowed.
+     *
+     * @return boolean
+     */
+    private function _checkB2B($paymentMethod) {
+        $settings = $this->_getRatePaySettings($paymentMethod, strtolower($this->_getCountry()));
+        $b2b = (bool) $settings->pi_ratepay_settings__b2b->rawValue;
+        $company = (!empty($this->getUser()->oxuser__oxcompany->value));
+
+        return (!$company || $b2b);
+    }
+
+    /**
+     * Checks if differing delivery address is used and allowed.
+     *
+     * @return boolean
+     */
+    private function _checkALA($paymentMethod) {
+        $settings = $this->_getRatePaySettings($paymentMethod, strtolower($this->_getCountry()));
+        $ala = (bool) $settings->pi_ratepay_settings__ala->rawValue;
+
+        return (!$this->_checkAddress() || $ala);
+    }
+
+    /**
+     * Checks if the current country is supported by RatePAY Payment.
+     *
+     * @return boolean
+     */
+    private function _checkCountry() {
+        return in_array(strtolower($this->_getCountry()), pi_ratepay_util_utilities::$_RATEPAY_ALLOWED_COUNTRIES);
     }
 
     /**
@@ -698,9 +780,12 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
      *
      * @return boolean
      */
-    private function _checkCountry()
+    private function _checkActivation($paymentMethod)
     {
-        return oxDb::getDb()->getOne("SELECT OXISOALPHA2 FROM oxcountry WHERE OXID = '" . $this->getUser()->oxuser__oxcountryid->value . "'") == "DE";
+        $userCountry = oxDb::getDb()->getOne("SELECT OXISOALPHA2 FROM oxcountry WHERE OXID = '" . $this->getUser()->oxuser__oxcountryid->value . "'");
+        $settings = $this->_getRatePaySettings($paymentMethod, strtolower($userCountry));
+
+        return (bool) $settings->pi_ratepay_settings__active->rawValue;
     }
 
     /**
@@ -796,7 +881,7 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
     protected function _getRatepayRequest()
     {
         $requestDataProvider = oxNew('pi_ratepay_requestdatafrontend', $this->_selectedPaymentMethod);
-        $ratepayRequest = oxNew('pi_ratepay_ratepayrequest', $this->_selectedPaymentMethod, $requestDataProvider);
+        $ratepayRequest = oxNew('pi_ratepay_ratepayrequest', $this->_selectedPaymentMethod, $requestDataProvider, null, array('country' => pi_ratepay_util_utilities::getCountry()));
 
         return $ratepayRequest;
     }

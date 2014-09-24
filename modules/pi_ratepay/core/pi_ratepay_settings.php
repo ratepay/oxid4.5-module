@@ -32,6 +32,13 @@ class pi_ratepay_Settings extends oxBase
     protected $_sClassName = 'pi_ratepay_Settings';
 
     /**
+     * Current country
+     *
+     * @var string
+     */
+    protected $_country = null;
+
+    /**
      * Class constructor
      *
      * @return null
@@ -48,13 +55,34 @@ class pi_ratepay_Settings extends oxBase
      * @param string $type 'invoice' | 'installment'
      * @return boolean
      */
-    public function loadByType($type)
+    public function loadByType($type, $country = null)
     {
+        if ($country !== null) {
+            $this->_setCountry($country);
+        }
+
         //getting at least one field before lazy loading the object
         $this->_addField('oxid', 0);
-        $selectQuery = $this->buildSelectString(array($this->getViewName() . ".type" => strtolower($type)));
+        $whereClause = array(
+            $this->getViewName() . ".type" => strtolower($type),
+            $this->getViewName() . ".country" => $this->_getCountry()
+        );
+        $selectQuery = $this->buildSelectString($whereClause);
 
-        return $this->_isLoaded = $this->assignRecord($selectQuery);
+        $return = $this->_isLoaded = $this->assignRecord($selectQuery);
+        return $return;
     }
 
+    private function _getCountry()
+    {
+        if ($this->_country === null) {
+            $this->_country = pi_ratepay_util_utilities::getCountry();
+        }
+        return $this->_country;
+    }
+
+    private function _setCountry($country)
+    {
+        $this->_country = $country;
+    }
 }

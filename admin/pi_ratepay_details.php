@@ -1050,7 +1050,7 @@ class pi_ratepay_details extends oxAdminDetails
     {
         if ($this->_paymentSid === null) {
             $order = $this->getEditObject();
-            $this->_paymentSid = isset($order)? $order->getPaymentType()->oxuserpayments__oxpaymentsid->value : false;
+            $this->_paymentSid = isset($order)? $order->oxorder__oxpaymenttype->rawValue : false;
         }
         return $this->_paymentSid;
     }

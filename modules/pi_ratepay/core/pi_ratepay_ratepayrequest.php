@@ -25,7 +25,7 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
 {
 
     /**
-     * pi_ratepay_rechnung or pi_ratepay_rate
+     * pi_ratepay_rechnung, pi_ratepay_rate or pi_ratepay_lastschrift
      * @var string
      */
     private $_paymentType;
@@ -43,6 +43,24 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
     private $_dataProvider;
 
     /**
+     * DE or AT (or CH)
+     * @var string
+     */
+    private $_country;
+
+    /**
+     * Profile Id
+     * @var string
+     */
+    private $_profileId;
+
+    /**
+     * Security Coce
+     * @var string
+     */
+    private $_securityCode;
+
+    /**
      * Is shop set to UTF8 Mode
      * @var bool
      */
@@ -54,11 +72,14 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
      * @param pi_ratepay_RequestAbstract $dataProvider
      * @param pi_ratepay_xmlService $xmlService
      */
-    public function __construct($paymentType, pi_ratepay_RequestAbstract $dataProvider = null, $xmlService = null)
+    public function __construct($paymentType, pi_ratepay_RequestAbstract $dataProvider = null, $xmlService = null, $extendedData = array())
     {
         parent::__construct();
 
         $this->_paymentType = $paymentType;
+        $this->_country = ($extendedData['country']) ? $extendedData['country'] : false;
+        $this->_profileId = ($extendedData['profileId']) ? $extendedData['profileId'] : false;
+        $this->_securityCode = ($extendedData['securityCode']) ? $extendedData['securityCode'] : false;
         $this->_dataProvider = $dataProvider;
         $this->_xmlService = isset($xmlService) ? $xmlService : pi_ratepay_xmlService::getInstance();
         $this->_utfMode = $this->getConfig()->isUtf();
@@ -168,6 +189,26 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
     }
 
     /**
+     * Do a request profile request.
+     * @return array
+     */
+    public function profileRequest($country = null)
+    {
+        $operation = 'PROFILE_REQUEST';
+        $ratepay = $this->_getXmlService();
+        $request = $ratepay->getXMLObject();
+
+        $this->_setRatepayHead($request, $operation);
+
+        $requestProfile = array(
+            'request'  => $request,
+            'response' => $ratepay->paymentOperation($request, $this->_getPaymentMethod(), $country)
+        );
+
+        return $requestProfile;
+    }
+
+    /**
      * Generate head node for request xml
      *
      * @param SimpleXMLExtended $request
@@ -180,7 +221,7 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
         $head = $request->addChild('head');
         $head->addChild('system-id', $this->_getRatepaySystemID());
 
-        if ($operation != 'PAYMENT_INIT' && $operation != 'CONFIGURATION_REQUEST') {
+        if ($operation != 'PAYMENT_INIT' && $operation != 'CONFIGURATION_REQUEST' && $operation != 'PROFILE_REQUEST') {
             $head->addChild('transaction-id', $this->_getDataProvider()->getTransactionId());
         }
 
@@ -201,11 +242,23 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
     {
         $credential = $head->addChild('credential');
 
-        $settings = oxNew('pi_ratepay_settings');
-        $settings->loadByType(strtolower($this->_getPaymentMethod()));
+        if ($this->_getProfileId() && $this->_getSecurityCode()) {
+            $profileId = $this->_getProfileId();
+            $securityCode = $this->_getSecurityCode();
+        } else {
+            $paymentMethod = strtolower($this->_getPaymentMethod());
+            $country = $this->_getCountry();
 
-        $profileId = $settings->pi_ratepay_settings__profile_id->rawValue;
-        $securityCode = $settings->pi_ratepay_settings__security_code->rawValue;
+            $settings = oxNew('pi_ratepay_settings');
+            if ($country) {
+                $settings->loadByType($paymentMethod, $country);
+            } else {
+                $settings->loadByType($paymentMethod);
+            }
+
+            $profileId = $settings->pi_ratepay_settings__profile_id->rawValue;
+            $securityCode = $settings->pi_ratepay_settings__security_code->rawValue;
+        }
 
         $credential->addChild('profile-id', $profileId);
         $credential->addChild('securitycode', $securityCode);
@@ -603,7 +656,7 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
 
     /**
      * Get payment type as registered in oxid.
-     * @return string pi_ratepay_rechnung or pi_ratepay_rate
+     * @return string pi_ratepay_rechnung, pi_ratepay_rate or ratepay_lastschrift
      */
     private function _getPaymentType()
     {
@@ -619,6 +672,34 @@ class pi_ratepay_RatepayRequest extends oxSuperCfg
     {
         return pi_ratepay_util_utilities::getPaymentMethod($this->_getPaymentType());
     }
+
+    /**
+     * Get current country
+     * @return string DE or AT (or CH)
+     */
+    private function _getCountry()
+    {
+        return $this->_country;
+    }
+
+    /**
+     * Get Profile Id
+     * @return string
+     */
+    private function _getProfileId()
+    {
+        return $this->_profileId;
+    }
+
+    /**
+     * Get Security Code
+     * @return string
+     */
+    private function _getSecurityCode()
+    {
+        return $this->_securityCode;
+    }
+
 
     /**
      * Get data provider for request.

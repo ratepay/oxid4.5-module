@@ -101,7 +101,9 @@ class PiRatepayRateCalc extends PiRatepayRateCalcBase
      */
     public function createFormattedResult()
     {
-        if ($this->getLanguage() == 'DE') {
+        if ($this->getLanguage() == 'DE' ||
+            $this->getLanguage() == 'AT' ||
+            $this->getLanguage() == 'CH') {
             $currency = '&euro;';
             $decimalSeperator = ',';
             $thousandSepeartor = '.';

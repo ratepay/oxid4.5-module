@@ -21,6 +21,10 @@
 // -------------------------------
 $aLang = array(
     'charset'                                  => 'UTF-8',
+    'PI_RATEPAY_RATEPAY'                       => 'RatePAY',
+    'PI_RATEPAY_RECHNUNG'                      => 'RatePAY Rechnung',
+    'PI_RATEPAY_ELV'                           => 'RatePAY SEPA-Lastschrift',
+    'PI_RATEPAY_RATE'                          => 'RatePAY Rate',
     'PI_RATEPAY_LOGGING'                       => "Logging",
     'PI_RATEPAY_LOGGING_ID'                    => "ID",
     'PI_RATEPAY_LOGGING_ORDERNUMBER'           => "Ordernumber",
