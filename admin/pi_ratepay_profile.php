@@ -123,6 +123,8 @@ class pi_ratepay_Profile extends pi_ratepay_admin_SettingsAbstract
                             $methodActive = false;
                             $errMsg[$country][$methodShop] = "PI_RATEPAY_PROFILE_ERROR_DEACTIVATED_BY_REQUEST";
                         }
+                        $prCountry = $profileRequest['profile']['country-code-billing'];
+                        $curCountry = strtoupper($country);
                     } elseif (!empty($profileId) && !empty($securityCode)) {
                         $methodActive = false;
                         $errMsg[$country][$methodShop] = "PI_RATEPAY_PROFILE_ERROR_CREDENTIALS_INVALID_";
@@ -155,6 +157,7 @@ class pi_ratepay_Profile extends pi_ratepay_admin_SettingsAbstract
             }
         }
 
+        $this->addTplParam('saved', true);
         $this->addTplParam('errMsg', $errMsg);
     }
 

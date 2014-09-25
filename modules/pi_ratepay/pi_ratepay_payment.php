@@ -76,7 +76,7 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
      */
     public function _setCountry()
     {
-        $this->_country = oxDb::getDb()->getOne("SELECT OXISOALPHA2 FROM oxcountry WHERE OXID = '" . $this->getUser()->oxuser__oxcountryid->value . "'");
+        $this->_country = strtolower(oxDb::getDb()->getOne("SELECT OXISOALPHA2 FROM oxcountry WHERE OXID = '" . $this->getUser()->oxuser__oxcountryid->value . "'"));
     }
 
     /**
@@ -557,7 +557,7 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
             }
         } else {
             $iban = $this->_clearIban($bankData[$ibanKey]);
-            if($iban[1].$iban[2] != "DE" && (strlen($iban) < 20 && strlen($iban) > 22)) {
+            if(strtolower($iban[0].$iban[1]) != pi_ratepay_util_utilities::getCountry() || (strlen($iban) < 20 && strlen($iban) > 22)) {
                 $isBankDataValid = false;
                 $this->_errors[] = $bankErrors[$ibanKey];
             }
@@ -670,7 +670,7 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
      * @return boolean
      */
     private function _checkLimit($paymentMethod) {
-        $settings = $this->_getRatePaySettings($paymentMethod, strtolower($this->_getCountry()));
+        $settings = $this->_getRatePaySettings($paymentMethod);
         $limitMin = (int) $settings->pi_ratepay_settings__limit_min->rawValue;
         $limitMax = (int) $settings->pi_ratepay_settings__limit_max->rawValue;
         $basketAmount = $this->getSession()->getBasket()->getPrice()->getNettoPrice();
@@ -684,7 +684,7 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
      * @return boolean
      */
     private function _checkB2B($paymentMethod) {
-        $settings = $this->_getRatePaySettings($paymentMethod, strtolower($this->_getCountry()));
+        $settings = $this->_getRatePaySettings($paymentMethod);
         $b2b = (bool) $settings->pi_ratepay_settings__b2b->rawValue;
         $company = (!empty($this->getUser()->oxuser__oxcompany->value));
 
@@ -697,10 +697,10 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
      * @return boolean
      */
     private function _checkALA($paymentMethod) {
-        $settings = $this->_getRatePaySettings($paymentMethod, strtolower($this->_getCountry()));
+        $settings = $this->_getRatePaySettings($paymentMethod);
         $ala = (bool) $settings->pi_ratepay_settings__ala->rawValue;
 
-        return (!$this->_checkAddress() || $ala);
+        return ($ala || $this->_checkAddress());
     }
 
     /**
@@ -779,7 +779,7 @@ class pi_ratepay_payment extends pi_ratepay_payment_parent
     private function _checkActivation($paymentMethod)
     {
         $userCountry = oxDb::getDb()->getOne("SELECT OXISOALPHA2 FROM oxcountry WHERE OXID = '" . $this->getUser()->oxuser__oxcountryid->value . "'");
-        $settings = $this->_getRatePaySettings($paymentMethod, strtolower($userCountry));
+        $settings = $this->_getRatePaySettings($paymentMethod);
 
         return (bool) $settings->pi_ratepay_settings__active->rawValue;
     }

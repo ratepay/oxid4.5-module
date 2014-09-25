@@ -43,6 +43,10 @@
                         [{/if}]
                         RatePAY Modul v[{$moduleVersion}]<br/><br/>
 
+                        [{if $saved === true}]
+                            <span style="font-weight: bold; color: #FFFFFF; background-color: #0B610B">[{oxmultilang ident="PI_RATEPAY_PROFILE_SAVED"}]</span><br/><br/>
+                        [{/if}]
+
                         [{foreach key=country item=countryValue from=$config}]
                             [{if $country != 'de'}]
                                 [{if isset($activeCountries.$country)}]
@@ -101,7 +105,7 @@
                                                         </td>
                                                     </tr><tr>
                                                         <td class="edittext">
-                                                            [{oxmultilang ident="PI_RATEPAY_PROFILE_LOGGING"}]:
+                                                            [{oxmultilang ident="PI_RATEPAY_PROFILE_SETTINGS_LOGGING"}]:
                                                         </td><td class="edittext">
                                                             [{if $methodValue.logging === true}]
                                                             <input type="checkbox" name="rp_logging_[{$method}]_[{$country}]" checked='checked' value='on'>
