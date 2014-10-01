@@ -75,6 +75,9 @@ class pi_ratepay_Profile extends pi_ratepay_admin_SettingsAbstract
         $this->addTplParam('activeCountries', $activeCountries);
         $this->addTplParam('allMethods', $methods);
 
+        $oxViewConfig = new oxViewConfig();
+        $this->addTplParam('baseDir', $oxViewConfig->getBaseDir());
+
         return "pi_ratepay_profile.tpl";
 
     }
@@ -97,8 +100,6 @@ class pi_ratepay_Profile extends pi_ratepay_admin_SettingsAbstract
                 $securityCode = oxConfig::getParameter('rp_security_code_' . $methodShop . '_' . $country);
 
                 $firstSaveArray = array(
-                    'profile_id' => $profileId,
-                    'security_code' => $securityCode,
                     'sandbox' => $this->_isParameterCheckedOn(oxConfig::getParameter('rp_sandbox_' . $methodShop . '_' . $country)),
                     'logging' => $this->_isParameterCheckedOn(oxConfig::getParameter('rp_logging_' . $methodShop . '_' . $country)),
                     'duedate' => (int) oxConfig::getParameter('rp_duedate_' . $methodShop . '_' . $country)
@@ -123,8 +124,6 @@ class pi_ratepay_Profile extends pi_ratepay_admin_SettingsAbstract
                             $methodActive = false;
                             $errMsg[$country][$methodShop] = "PI_RATEPAY_PROFILE_ERROR_DEACTIVATED_BY_REQUEST";
                         }
-                        $prCountry = $profileRequest['profile']['country-code-billing'];
-                        $curCountry = strtoupper($country);
                     } elseif (!empty($profileId) && !empty($securityCode)) {
                         $methodActive = false;
                         $errMsg[$country][$methodShop] = "PI_RATEPAY_PROFILE_ERROR_CREDENTIALS_INVALID_";
@@ -138,6 +137,8 @@ class pi_ratepay_Profile extends pi_ratepay_admin_SettingsAbstract
 
                 if ($profileRequest) {
                     $secondSaveArray = array(
+                        'profile_id' => $profileId,
+                        'security_code' => $securityCode,
                         'limit_min' => (int) $profileRequest['profile']['tx-limit-' . $methodDB . '-min'],
                         'limit_max' => (int) $profileRequest['profile']['tx-limit-' . $methodDB . '-max'],
                         'b2b' => $this->_isParameterCheckedYes($profileRequest['profile']['b2b-' . $methodDB]),

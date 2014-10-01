@@ -16,8 +16,8 @@
 *-->
 [{include file="headitem.tpl" titre="[ratepay]"}]
 
-<script type="text/javascript" src="../../out/admin/src/js/libs/jquery.js"></script>
-<script type="text/javascript" src="../../out/admin/src/js/libs/ratepay_profile.js"></script>
+<script type="text/javascript" src="[{$baseDir}]out/admin/src/js/libs/jquery.js"></script>
+<script type="text/javascript" src="[{$baseDir}]out/admin/src/js/libs/ratepay_profile.js"></script>
 <script type="text/javascript">
     countries = [[{foreach item=country from=$allCountries}] '[{$country}]',[{/foreach}]];
     activeCountries = [[{foreach item=country from=$activeCountries}] '[{$country}]',[{/foreach}]];
